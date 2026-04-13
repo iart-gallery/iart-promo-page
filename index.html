@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAY at IART | 全品項預訂系統</title>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',sans-serif; background:#F9F8F4; color:#333; font-size:14px; line-height:1.6; }
+
+/* 密碼門 */
+#pw-gate { position:fixed; inset:0; background:#F9F8F4; display:flex; align-items:center; justify-content:center; z-index:999; }
+.pw-box { background:#fff; border:1px solid #ddd; border-radius:10px; padding:2.5rem 2rem; text-align:center; width:320px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+.pw-box h2 { font-size:18px; font-weight:300; letter-spacing:0.2em; margin-bottom:6px; }
+.pw-box p { font-size:12px; color:#999; margin-bottom:1.5rem; }
+.pw-box input { width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:14px; margin-bottom:10px; text-align:center; letter-spacing:0.15em; }
+.pw-btn { width:100%; padding:10px; background:#111; color:#fff; border:none; border-radius:6px; font-size:13px; cursor:pointer; }
+#pw-error { color:#991b1b; font-size:12px; margin-top:10px; display:none; }
+
+/* 佈局 */
+header { text-align:center; padding:3rem 1.5rem 1.5rem; background:#fff; border-bottom:1px solid #eee; }
+header h1 { font-size:1.8rem; font-weight:300; letter-spacing:0.3em; }
+.notice { max-width:560px; margin:1.2rem auto 0; background:#f5f4ef; border:1px solid #ddd; border-radius:8px; padding:1rem; font-size:12px; text-align:left; }
+nav { display:flex; justify-content:center; background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:100; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.tab-btn { padding:14px 24px; font-size:13px; border:none; border-bottom:2px solid transparent; background:transparent; color:#888; cursor:pointer; transition: 0.3s; }
+.tab-btn.active { color:#111; border-bottom-color:#111; font-weight:700; }
+.tab-panel { display:none; min-height: 400px; }
+.tab-panel.active { display:block; }
+.wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+.section-title { text-align:center; font-size:12px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#aaa; margin-bottom:1.5rem; }
+
+/* 卡片與網格 */
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:680px; margin:0 auto; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+@media(max-width:860px){ .grid-3,.grid-4 { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:520px){ .grid-3,.grid-2,.grid-4 { grid-template-columns:1fr; } }
+
+.card { background:#fff; border:1px solid #eee; border-radius:8px; padding:1.25rem; display:flex; flex-direction:column; gap:8px; }
+.img-box { background:#f3f4f6; border-radius:6px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.img-box img { max-width:100%; max-height:100%; object-fit:contain; }
+.card h3 { font-size:13px; font-weight:700; }
+.card .desc { font-size:11px; color:#999; }
+select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-radius:6px; background:#fff; }
+
+/* 價格與按鈕 */
+.price-row { display:flex; align-items:baseline; gap:8px; margin-top:auto; }
+.price-orig { font-size:11px; color:#bbb; text-decoration:line-through; }
+.price-disc { font-size:15px; font-weight:700; color:#991b1b; }
+.price { font-size:15px; font-weight:700; margin-top:auto; }
+.price-special { color:#78716c; }
+
+.btn { width:100%; padding:10px; font-size:11px; border-radius:6px; cursor:pointer; font-weight:500; border:none; margin-top:4px; }
+.btn-primary  { background:#111; color:#fff; }
+.btn-special  { background:#78716c; color:#fff; }
+.btn-secondary{ background:#f0efeb; color:#333; border:1px solid #ddd; }
+.divider { height:1px; background:#eee; margin:2.5rem 0; }
+
+/* 購物車 */
+#cart-box { position:fixed; bottom:1.5rem; right:1.5rem; width:300px; background:#fff; border:2px solid #111; border-radius:10px; padding:1.25rem; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:200; display:none; }
+</style>
+</head>
+<body>
+
+<div id="pw-gate">
+  <div class="pw-box">
+    <h2>HAY at IART</h2>
+    <p>請輸入 IART 邀請碼</p>
+    <input type="password" id="pw-input" placeholder="邀請碼">
+    <button class="pw-btn" onclick="checkPassword()">進入</button>
+    <p id="pw-error">邀請碼錯誤</p>
+  </div>
+</div>
+
+<div id="main-content" style="display:none;">
+  <header>
+    <h1>HAY at IART</h1>
+    <p style="font-size:11px; color:#999; letter-spacing:0.2em;">Exclusive Member Events</p>
+    <div class="notice">
+      <p><strong>【 訂購須知 】</strong></p>
+       <p>1.預約制：本頁面僅供「商品預約登記」，不涉及線上金流支付。</p>
+      <p>2.完成交易：預訂成功後，請至1F愛上藝廊櫃檯現場付款領貨，方視為交易完成。</p>
+      <p>3.庫存優先權：系統依預約時間順序保留庫存，若現場實品完售，將以送出預約表單的時間順序為主。</p>
+    </div>
+  </header>
+
+  <nav>
+    <button class="tab-btn active" onclick="showTab('t1',this)">限定組合</button>
+    <button class="tab-btn" onclick="showTab('t2',this)">精選折扣區</button>
+    <button class="tab-btn" onclick="showTab('t3',this)">所有商品</button>
+  </nav>
+
+  <div id="t1" class="tab-panel active">
+    <div class="wrap">
+      <p class="section-title">限定聯名組合</p>
+      <div id="grid-tab1a" class="grid-3"></div>
+      <div class="divider"></div>
+      <p class="section-title" id="t1b-title">IART 限定特惠組</p>
+      <div id="grid-tab1b" class="grid-2"></div>
+    </div>
+  </div>
+
+  <div id="t2" class="tab-panel">
+    <div class="wrap"><p class="section-title">精選促銷方案</p><div id="grid-tab2" class="grid-3"></div></div>
+  </div>
+
+  <div id="t3" class="tab-panel">
+    <div class="wrap"><p class="section-title">HAY 完整單品全集</p><div id="grid-tab3" class="grid-4"></div></div>
+  </div>
+
+  <div id="cart-box">
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:10px;">
+      您的預訂清單 <button onclick="clearCart()" style="background:none;border:none;text-decoration:underline;cursor:pointer;color:#888;">清空</button>
+    </div>
+    <div id="cart-items" style="font-size:11px;max-height:150px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:5px;"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #eee;padding-top:10px;">
+      <span>總額</span><span id="cart-total">NT$ 0</span>
+    </div>
+    <button class="btn btn-primary" style="background:#991b1b;margin-top:10px;" onclick="checkout()">確認預訂並複製內容</button>
+  </div>
+</div>
+
+<script>
+// ★ 配置區
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCoEWkhTF5YtBBXc3Mta7uXs9SyrAR-y5_46vUaJ61AsdA8Bfs9RVhYqtd9Txeel6bbBwWRB0A3MU/pub?output=csv'; // 貼上你的 CSV 網址
+
+var DEMO_DATA = [
+  {tab:'tab1a', name:'暖心呵護', desc:'Crate(M) + 大毛巾 + 毛巾', price:2460, orig_price:'', colors:'籃子:淺黃,淡紫|毛巾:鋼鐵藍,薰衣草', img:'combo_warm.jpg', btn_style:'primary', section:''},
+  {tab:'tab1a', name:'辦公療癒', desc:'Tote Bag + Crate(M) + Barro Cup', price:3260, orig_price:'', colors:'托特包:海軍藍|籃子:淺黃,淡紫', img:'combo_office.jpg', btn_style:'primary', section:''},
+  {tab:'tab1a', name:'午後食光', desc:'Barro Plate Set + Barro Cup', price:4200, orig_price:'', colors:'餐盤:米白,深藍|杯子:粉紅,天藍', img:'combo_tea.jpg', btn_style:'primary', section:''},
+  {tab:'tab1b', name:'FREE SPIRIT 系列', desc:'Tote + Wash Bag + Slippers', price:1880, orig_price:'', colors:'款式:A款,B款', img:'free_spirit.jpg', btn_style:'special', section:'IART 限定特惠組'},
+  {tab:'tab2', name:'生活美學組合', desc:'Door Mat + Crate(M)', price:2124, orig_price:2360, colors:'門墊:粉紅,黃色|籃子:淺黃', img:'plan2_life.jpg', btn_style:'primary', section:''},
+  {tab:'tab3', name:'HAY Tote Bag', desc:'', price:420, orig_price:'', colors:'顏色:海軍藍,深橄欖', img:'tote.jpg', btn_style:'secondary', section:''}
+];
+
+var selCounter = 0;
+
+// 核心渲染
+function buildCard(item) {
+  var sidPrefix = 'sel_' + (++selCounter);
+  var selHtml = '';
+  var selIds = [];
+
+  if (item.colors) {
+    selHtml = item.colors.split('|').map((group, idx) => {
+      var parts = group.split(':');
+      var label = parts.length > 1 ? parts[0] : '選項';
+      var opts = (parts.length > 1 ? parts[1] : parts[0]).split(',').map(function(o){ return o.trim(); });
+      var sid = sidPrefix + '_' + idx;
+      selIds.push(sid);
+      return `<select id="${sid}"><option value="">選擇${label}</option>${opts.map(o => {
+        var sold = o.indexOf('售完') !== -1;
+        return '<option' + (sold ? ' style="color:#bbb;" disabled' : '') + '>' + o + '</option>';
+      }).join('')}</select>`;
+    }).join('');
+  }
+
+  var priceHtml = item.orig_price 
+    ? `<div class="price-row"><span class="price-orig">NT$ ${Number(item.orig_price).toLocaleString()}</span><span class="price-disc">NT$ ${Number(item.price).toLocaleString()}</span></div>`
+    : `<p class="price ${item.btn_style==='special'?'price-special':''}">NT$ ${Number(item.price).toLocaleString()}</p>`;
+
+  return `
+    <div class="card">
+      <div class="img-box"><img src="${item.img}" onerror="this.src='https://via.placeholder.com/300?text=HAY'"></div>
+      <h3>${item.name}</h3>
+      ${item.desc ? `<p class="desc">${item.desc}</p>` : ''}
+      ${selHtml}
+      ${priceHtml}
+      <button class="btn btn-${item.btn_style || 'primary'}" onclick='addToCart(${JSON.stringify(item.name)}, ${item.price}, ${JSON.stringify(selIds)})'>預訂</button>
+    </div>`;
+}
+
+function renderAll(data) {
+  var buckets = { tab1a:[], tab1b:[], tab2:[], tab3:[] };
+  data.forEach(item => {
+    var t = (item.tab || '').trim();
+    if(buckets[t]) buckets[t].push(item);
+  });
+
+  Object.keys(buckets).forEach(key => {
+    var container = document.getElementById('grid-' + key);
+    if (container) {
+      container.innerHTML = buckets[key].map(buildCard).join('');
+    }
+  });
+
+  if (buckets.tab1b.length > 0) {
+    document.getElementById('t1b-title').textContent = buckets.tab1b[0].section || 'IART 限定特惠組';
+  }
+}
+
+function parseCSV(text) {
+  var lines = text.trim().split('\n');
+  var headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    var row = [], cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') inQ = !inQ;
+      else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    row.push(cur.trim());
+    var obj = {};
+    headers.forEach((h, i) => obj[h] = (row[i] || '').replace(/^"|"$/g,''));
+    return obj;
+  }).filter(o => o.tab);
+}
+
+// 修改：初始化即載入資料，不依賴密碼觸發渲染
+function initData() {
+  if (!SHEET_URL) {
+    renderAll(DEMO_DATA);
+    return;
+  }
+  fetch(SHEET_URL)
+    .then(r => r.text())
+    .then(t => {
+      var data = parseCSV(t);
+      renderAll(data.length > 0 ? data : DEMO_DATA);
+    })
+    .catch(err => {
+      console.warn('CSV載入失敗，使用預設資料', err);
+      renderAll(DEMO_DATA);
+    });
+}
+
+// 密碼驗證只負責切換顯示
+function checkPassword() {
+  var input = document.getElementById('pw-input').value;
+  if (input === 'stork888') {
+    document.getElementById('pw-gate').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+  }
+}
+
+// 切換頁籤
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// 購物車
+var cart = [];
+function addToCart(name, price, ids) {
+  var colors = ids.map(id => {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }).filter(v => v !== "").join(' / ');
+  
+  cart.push({ name, price, colors });
+  renderCart();
+  document.getElementById('cart-box').style.display = 'block';
+}
+
+function renderCart() {
+  var html = '', total = 0;
+  cart.forEach(item => {
+    html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:5px;">
+      <span>${item.name}<br><small style="color:#aaa">${item.colors}</small></span>
+      <span>NT$${item.price.toLocaleString()}</span>
+    </div>`;
+    total += item.price;
+  });
+  document.getElementById('cart-items').innerHTML = html;
+  document.getElementById('cart-total').textContent = 'NT$ ' + total.toLocaleString();
+}
+
+function clearCart() {
+  cart = [];
+  renderCart();
+  document.getElementById('cart-box').style.display = 'none';
+}
+
+function checkout() {
+  var text = '【HAY at IART 預訂清單】\n';
+  cart.forEach(item => text += `- ${item.name} (${item.colors}) NT$ ${item.price}\n`);
+  text += '\n總金額：NT$ ' + cart.reduce((a,b)=>a+b.price,0).toLocaleString();
+  
+  navigator.clipboard.writeText(text).then(() => {
+    alert('清單已複製！請貼上至表單備註。');
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSev6nbvFVWBgdfVsH8n9nbfcPs8XRG_7TssKZA66vjPhKXl-g/viewform?usp=dialog', '_blank');
+  });
+}
+
+// 頁面載入後啟動
+document.addEventListener('DOMContentLoaded', function() {
+  initData();
+  document.getElementById('pw-input').addEventListener('keypress', (e) => { if(e.key==='Enter') checkPassword(); });
+});
+</script>
+</body>
+</html>
