@@ -27,7 +27,7 @@ nav { display:flex; justify-content:center; background:#fff; border-bottom:1px s
 .tab-panel { display:none; min-height: 400px; }
 .tab-panel.active { display:block; }
 .wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
-.section-title { text-align:center; font-size:12px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#aaa; margin-bottom:1.5rem; }
+.section-title { text-align:center; font: size 14px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#333; margin-bottom:1.5rem; }
 
 /* 卡片與網格 */
 .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
@@ -78,9 +78,9 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
     <p style="font-size:11px; color:#999; letter-spacing:0.2em;">Exclusive Member Events</p>
     <div class="notice">
       <p><strong>【 訂購須知 】</strong></p>
-       <p>1.預約制：本頁面僅供「商品預約登記」，不涉及線上金流支付。</p>
-      <p>2.完成交易：預訂成功後，請至1F愛上藝廊櫃檯現場付款領貨，方視為交易完成。</p>
-      <p>3.庫存優先權：系統依預約時間順序保留庫存，若現場實品完售，將以送出預約表單的時間順序為主。</p>
+      <p>1.本頁面僅供「商品預訂登記」，不涉及線上金流支付。</p>
+      <p>2.預訂成功後，請於預約取貨日至1F愛上藝廊櫃檯現場付款領貨，若未於約定日取貨付款，預訂商品將取消保留。</p>
+      <p>3.以送出預約表單的時間順序保留庫存。若預訂品項已完售，將會致電和寄發E-mail通知。</p>
     </div>
   </header>
 
@@ -92,7 +92,8 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
 
   <div id="t1" class="tab-panel active">
     <div class="wrap">
-      <p class="section-title">限定聯名組合</p>
+      <p class="section-title">限定蛋寶聯名組合</p>
+<p style="text-align:center; font-size:12px; color:#991b1b; font-style:normal; font-weight:500; margin-bottom:1.5rem;">購買限定蛋寶聯名組任一組，即贈限量粉藍、粉紅蛋寶吊飾（顏色隨機）</p>
       <div id="grid-tab1a" class="grid-3"></div>
       <div class="divider"></div>
       <p class="section-title" id="t1b-title">IART 限定特惠組</p>
@@ -105,7 +106,7 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
   </div>
 
   <div id="t3" class="tab-panel">
-    <div class="wrap"><p class="section-title">HAY 完整單品全集</p><div id="grid-tab3" class="grid-4"></div></div>
+    <div class="wrap"><p class="section-title">單品全集</p><div id="grid-tab3" class="grid-4"></div></div>
   </div>
 
   <div id="cart-box">
@@ -126,7 +127,7 @@ var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCoEWkhTF5YtB
 
 var DEMO_DATA = [
   {tab:'tab1a', name:'暖心呵護', desc:'Crate(M) + 大毛巾 + 毛巾', price:2460, orig_price:'', colors:'籃子:淺黃,淡紫|毛巾:鋼鐵藍,薰衣草', img:'combo_warm.jpg', btn_style:'primary', section:''},
-  {tab:'tab1a', name:'辦公療癒', desc:'Tote Bag + Crate(M) + Barro Cup', price:3260, orig_price:'', colors:'托特包:海軍藍|籃子:淺黃,淡紫', img:'combo_office.jpg', btn_style:'primary', section:''},
+  {tab:'tab1a', name:'辦公療癒', desc:'Tote Bag + Crate(M) + Barro Cup', price:3260, orig_price:'', colors:'托特包:海軍藍|籃子:淺黃,淡紫|杯子:粉紅,天藍,大地', img:'combo_office.jpg', btn_style:'primary', section:''},
   {tab:'tab1a', name:'午後食光', desc:'Barro Plate Set + Barro Cup', price:4200, orig_price:'', colors:'餐盤:米白,深藍|杯子:粉紅,天藍', img:'combo_tea.jpg', btn_style:'primary', section:''},
   {tab:'tab1b', name:'FREE SPIRIT 系列', desc:'Tote + Wash Bag + Slippers', price:1880, orig_price:'', colors:'款式:A款,B款', img:'free_spirit.jpg', btn_style:'special', section:'IART 限定特惠組'},
   {tab:'tab2', name:'生活美學組合', desc:'Door Mat + Crate(M)', price:2124, orig_price:2360, colors:'門墊:粉紅,黃色|籃子:淺黃', img:'plan2_life.jpg', btn_style:'primary', section:''},
@@ -166,7 +167,7 @@ function buildCard(item) {
       ${item.desc ? `<p class="desc">${item.desc}</p>` : ''}
       ${selHtml}
       ${priceHtml}
-      <button class="btn btn-${item.btn_style || 'primary'}" onclick='addToCart(${JSON.stringify(item.name)}, ${item.price}, ${JSON.stringify(selIds)})'>預訂</button>
+      <button class="btn btn-${item.btn_style || 'primary'}" onclick='addToCart(${JSON.stringify(item.name)}, ${item.price}, ${JSON.stringify(selIds)})'>加入預訂</button>
     </div>`;
 }
 
