@@ -57,7 +57,24 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
 .divider { height:1px; background:#eee; margin:2.5rem 0; }
 
 /* 購物車 */
-#cart-box { position:fixed; bottom:1.5rem; right:1.5rem; width:300px; background:#fff; border:2px solid #111; border-radius:10px; padding:1.25rem; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:200; display:none; }
+#cart-toggle { position:fixed; bottom:1.5rem; right:1.5rem; width:52px; height:52px; background:#bbbbbb83; color:#fff; border:none; border-radius:50%; font-size:20px; cursor:pointer; z-index:201; display:flex; align-items:center; justify-content:center; }
+#cart-badge { position:absolute; top:-4px; right:-4px; background:#991b1b; color:#fff; font-size:10px; font-weight:700; border-radius:50%; width:18px; height:18px; display:none; align-items:center; justify-content:center; }
+#cart-box { position:fixed; bottom:5rem; right:1.5rem; width:300px; background:#fff; border:2px solid #111; border-radius:10px; padding:1.25rem; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:200; display:none; }
+
+/* 燈箱 */
+#lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500; display:none; align-items:center; justify-content:center; padding:1rem; }
+#lightbox.open { display:flex; }
+#lightbox-inner { background:#fff; border-radius:10px; padding:1.5rem; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; position:relative; }
+#lightbox-close { position:absolute; top:10px; right:14px; background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+.lb-group { margin-bottom:1.2rem; }
+.lb-group-title { font-size:11px; font-weight:700; color:#aaa; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+.lb-swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.lb-swatch { text-align:center; cursor:pointer; }
+.lb-swatch img { width:80px; height:80px; object-fit:cover; border-radius:6px; border:2px solid transparent; transition:border-color 0.2s; }
+.lb-swatch img:hover { border-color:#111; }
+.lb-swatch span { display:block; font-size:10px; color:#888; margin-top:4px; }
+.lb-main { width:100%; aspect-ratio:1/1; object-fit:contain; border-radius:8px; background:#f3f4f6; margin-bottom:1rem; }
+
 </style>
 </head>
 <body>
@@ -72,6 +89,13 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
   </div>
 </div>
 
+<div id="lightbox">
+  <div id="lightbox-inner">
+    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lb-main-img" class="lb-main" src="" alt="">
+    <div id="lb-groups"></div>
+  </div>
+</div>
 <div id="main-content" style="display:none;">
   <header>
     <h1>HAY at IART</h1>
@@ -109,16 +133,21 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
     <div class="wrap"><p class="section-title">單品全集</p><div id="grid-tab3" class="grid-4"></div></div>
   </div>
 
-  <div id="cart-box">
-    <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:10px;">
-      您的預訂清單 <button onclick="clearCart()" style="background:none;border:none;text-decoration:underline;cursor:pointer;color:#888;">清空</button>
-    </div>
-    <div id="cart-items" style="font-size:11px;max-height:150px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:5px;"></div>
-    <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #eee;padding-top:10px;">
-      <span>總額</span><span id="cart-total">NT$ 0</span>
-    </div>
-    <button class="btn btn-primary" style="background:#991b1b;margin-top:10px;" onclick="checkout()">確認預訂並複製內容</button>
+  <button id="cart-toggle" onclick="toggleCart()">
+  🛒
+  <span id="cart-badge"></span>
+</button>
+
+<div id="cart-box">
+  <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:10px;">
+    您的預訂清單
+    <button onclick="clearCart()" style="background:none;border:none;text-decoration:underline;cursor:pointer;color:#888;">清空</button>
   </div>
+  <div id="cart-items" style="font-size:11px;max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:5px;"></div>
+  <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #eee;padding-top:10px;">
+    <span>總額</span><span id="cart-total">NT$ 0</span>
+  </div>
+  <button class="btn btn-primary" style="background:#991b1b;margin-top:10px;" onclick="checkout()">確認預訂並複製內容</button>
 </div>
 
 <script>
@@ -162,7 +191,9 @@ function buildCard(item) {
 
   return `
     <div class="card">
-      <div class="img-box"><img src="${item.img}" onerror="this.src='https://via.placeholder.com/300?text=HAY'"></div>
+      <div class="img-box" style="cursor:pointer;" onclick='openLightbox(${JSON.stringify(item)})'>
+  <img src="${item.img}" onerror="this.src='https://via.placeholder.com/300?text=HAY'">
+</div>
       <h3>${item.name}</h3>
       ${item.desc ? `<p class="desc">${item.desc}</p>` : ''}
       ${selHtml}
@@ -246,32 +277,53 @@ function showTab(id, btn) {
 
 // 購物車
 var cart = [];
+var cartOpen = false;
+
+function toggleCart() {
+  cartOpen = !cartOpen;
+  document.getElementById('cart-box').style.display = cartOpen ? 'block' : 'none';
+}
+
 function addToCart(name, price, ids) {
   var colors = ids.map(id => {
     var el = document.getElementById(id);
     return el ? el.value : '';
-  }).filter(v => v !== "").join(' / ');
-  
+  }).filter(v => v !== '').join(' / ');
   cart.push({ name, price, colors });
   renderCart();
+  cartOpen = true;
   document.getElementById('cart-box').style.display = 'block';
+}
+
+function removeFromCart(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+  if (cart.length === 0) {
+    cartOpen = false;
+    document.getElementById('cart-box').style.display = 'none';
+  }
 }
 
 function renderCart() {
   var html = '', total = 0;
-  cart.forEach(item => {
-    html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:5px;">
-      <span>${item.name}<br><small style="color:#aaa">${item.colors}</small></span>
-      <span>NT$${item.price.toLocaleString()}</span>
+  cart.forEach((item, idx) => {
+    html += `<div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:5px;gap:6px;">
+      <button onclick="removeFromCart(${idx})" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:14px;line-height:1;flex-shrink:0;">✕</button>
+      <span style="flex:1;">${item.name}<br><small style="color:#aaa">${item.colors}</small></span>
+      <span style="white-space:nowrap;">NT$${item.price.toLocaleString()}</span>
     </div>`;
     total += item.price;
   });
   document.getElementById('cart-items').innerHTML = html;
   document.getElementById('cart-total').textContent = 'NT$ ' + total.toLocaleString();
+  var badge = document.getElementById('cart-badge');
+  badge.textContent = cart.length;
+  badge.style.display = cart.length > 0 ? 'flex' : 'none';
 }
 
 function clearCart() {
   cart = [];
+  cartOpen = false;
   renderCart();
   document.getElementById('cart-box').style.display = 'none';
 }
@@ -280,12 +332,67 @@ function checkout() {
   var text = '【HAY at IART 預訂清單】\n';
   cart.forEach(item => text += `- ${item.name} (${item.colors}) NT$ ${item.price}\n`);
   text += '\n總金額：NT$ ' + cart.reduce((a,b)=>a+b.price,0).toLocaleString();
-  
   navigator.clipboard.writeText(text).then(() => {
     alert('清單已複製！請貼上至表單備註。');
     window.open('https://docs.google.com/forms/d/e/1FAIpQLSev6nbvFVWBgdfVsH8n9nbfcPs8XRG_7TssKZA66vjPhKXl-g/viewform?usp=dialog', '_blank');
   });
 }
+// 燈箱
+function openLightbox(item) {
+  var prefixes = (item.img_prefix || '').split('|').map(function(p){ return p.trim(); });
+  var colorGroups = (item.colors || '').split('|').map(function(g){ return g.trim(); });
+
+  var groupsHtml = '';
+  prefixes.forEach(function(prefix, gi) {
+    if (!prefix) return;
+    var groupStr = colorGroups[gi] || '';
+    var parts = groupStr.split(':');
+    var label = parts.length > 1 ? parts[0] : '';
+    var opts = (parts.length > 1 ? parts[1] : parts[0]).split(',').map(function(o){ return o.trim().replace('售完',''); });
+
+    var swatchesHtml = opts.map(function(color) {
+      var src = prefix + '_' + color + '.jpg';
+      return '<div class="lb-swatch" onclick="setLbMain(\'' + src + '\')">'
+        + '<img src="' + src + '" onerror="this.parentNode.style.display=\'none\'">'
+        + '<span>' + color + '</span>'
+        + '</div>';
+    }).join('');
+
+    groupsHtml += '<div class="lb-group">'
+      + (label ? '<p class="lb-group-title">' + label + '</p>' : '')
+      + '<div class="lb-swatches">' + swatchesHtml + '</div>'
+      + '</div>';
+  });
+
+  document.getElementById('lb-groups').innerHTML = groupsHtml;
+
+  // 預設主圖顯示第一張有效圖
+  var firstPrefix = prefixes[0] || '';
+  var firstGroup = colorGroups[0] || '';
+  var firstParts = firstGroup.split(':');
+  var firstOpts = (firstParts.length > 1 ? firstParts[1] : firstParts[0]).split(',');
+  var firstColor = firstOpts[0] ? firstOpts[0].trim().replace('售完','') : '';
+  var mainSrc = firstPrefix && firstColor ? firstPrefix + '_' + firstColor + '.jpg' : item.img;
+  document.getElementById('lb-main-img').src = mainSrc;
+  document.getElementById('lb-main-img').onerror = function(){ this.src = item.img; };
+
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function setLbMain(src) {
+  document.getElementById('lb-main-img').src = src;
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// 點燈箱背景關閉
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('lightbox').addEventListener('click', function(e){
+    if (e.target === this) closeLightbox();
+  });
+});
 
 // 頁面載入後啟動
 document.addEventListener('DOMContentLoaded', function() {
