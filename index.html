@@ -11,7 +11,7 @@ body { font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',sans-serif;
 /* 密碼門 */
 #pw-gate { position:fixed; inset:0; background:#F9F8F4; display:flex; align-items:center; justify-content:center; z-index:999; }
 .pw-box { background:#fff; border:1px solid #ddd; border-radius:10px; padding:2.5rem 2rem; text-align:center; width:320px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
-.pw-box h2 { font-size:18px; font-weight:300; letter-spacing:0.2em; margin-bottom:6px; }
+.pw-box h2 { font-size:18px; font-weight:300; letter-spacing:0.1em; margin-bottom:6px; }
 .pw-box p { font-size:12px; color:#999; margin-bottom:1.5rem; }
 .pw-box input { width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:14px; margin-bottom:10px; text-align:center; letter-spacing:0.15em; }
 .pw-btn { width:100%; padding:10px; background:#111; color:#fff; border:none; border-radius:6px; font-size:13px; cursor:pointer; }
@@ -19,7 +19,7 @@ body { font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',sans-serif;
 
 /* 佈局 */
 header { text-align:center; padding:3rem 1.5rem 1.5rem; background:#fff; border-bottom:1px solid #eee; }
-header h1 { font-size:1.8rem; font-weight:300; letter-spacing:0.3em; }
+header h1 { font-size:1.8rem; font-weight:300; letter-spacing:0.1em; }
 .notice { max-width:560px; margin:1.2rem auto 0; background:#f5f4ef; border:1px solid #ddd; border-radius:8px; padding:1rem; font-size:12px; text-align:left; }
 nav { display:flex; justify-content:center; background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:100; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
 .tab-btn { padding:14px 24px; font-size:13px; border:none; border-bottom:2px solid transparent; background:transparent; color:#888; cursor:pointer; transition: 0.3s; }
@@ -30,15 +30,15 @@ nav { display:flex; justify-content:center; background:#fff; border-bottom:1px s
 .section-title { text-align:center; font: size 14px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#333; margin-bottom:1.5rem; }
 
 /* 卡片與網格 */
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:680px; margin:0 auto; }
-.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; min-width:0;}
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:680px; margin:0 auto; min-width:0; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; min-width:0;}
 @media(max-width:860px){ .grid-3,.grid-4 { grid-template-columns:repeat(2,1fr); } }
 @media(max-width:520px){ .grid-3,.grid-2,.grid-4 { grid-template-columns:1fr; } }
 
-.card { background:#fff; border:1px solid #eee; border-radius:8px; padding:1.25rem; display:flex; flex-direction:column; gap:8px; }
-.img-box { background:#f3f4f6; border-radius:6px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.img-box img { max-width:100%; max-height:100%; object-fit:contain; }
+.card { background:#fff; border:1px solid #eee; border-radius:8px; padding:1.25rem; display:flex; flex-direction:column; gap:8px; min-width:0; }
+ .img-box { background:#f3f4f6; border-radius:6px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; min-width:0; min-height:0; }
+.img-box img { width:100%; height:100%; object-fit:cover; }
 .card h3 { font-size:13px; font-weight:700; }
 .card .desc { font-size:11px; color:#999; }
 select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-radius:6px; background:#fff; }
@@ -57,11 +57,13 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
 .divider { height:1px; background:#eee; margin:2.5rem 0; }
 
 /* 購物車 */
-#cart-toggle { position:fixed; bottom:1.5rem; right:1.5rem; width:52px; height:52px; background:#bbbbbb83; color:#fff; border:none; border-radius:50%; font-size:20px; cursor:pointer; z-index:201; display:flex; align-items:center; justify-content:center; }
+#cart-toggle { position:fixed; top:4.5rem; right:1.5rem; width:52px; height:52px; background:#bbbbbb83; color:#fff; border:none; border-radius:50%; font-size:20px; cursor:pointer; z-index:201; display:flex; align-items:center; justify-content:center; }
 #cart-badge { position:absolute; top:-4px; right:-4px; background:#991b1b; color:#fff; font-size:10px; font-weight:700; border-radius:50%; width:18px; height:18px; display:none; align-items:center; justify-content:center; }
-#cart-box { position:fixed; bottom:5rem; right:1.5rem; width:300px; background:#fff; border:2px solid #111; border-radius:10px; padding:1.25rem; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:200; display:none; }
+#cart-box { position:fixed; top:8rem; right:1.5rem; width:300px; background:#fff; border:2px solid #111; border-radius:10px; padding:1.25rem; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:200; display:none; }
 
 /* 燈箱 */
+.img-box::after { content:'🔍'; position:absolute; bottom:6px; right:8px; background:rgba(0,0,0,0.45); color:#fff; font-size:11px; padding:4px 6px; border-radius:4px; pointer-events:none; }
+.img-box:hover::after { content:'🔍 點擊查看顏色'; }
 #lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500; display:none; align-items:center; justify-content:center; padding:1rem; }
 #lightbox.open { display:flex; }
 #lightbox-inner { background:#fff; border-radius:10px; padding:1.5rem; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; position:relative; }
@@ -364,7 +366,8 @@ function openLightbox(item) {
       + '</div>';
   });
 
-  document.getElementById('lb-groups').innerHTML = groupsHtml;
+  var sizeHtml = item.size ? '<p style="font-size:12px;color:#888;margin-bottom:1rem;">尺寸：' + item.size + '</p>' : '';
+document.getElementById('lb-groups').innerHTML = sizeHtml + groupsHtml;
 
   // 預設主圖顯示第一張有效圖
   var firstPrefix = prefixes[0] || '';
