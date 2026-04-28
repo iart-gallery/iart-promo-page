@@ -84,7 +84,7 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
 <div id="pw-gate">
   <div class="pw-box">
     <h2>HAY at IART</h2>
-    <p>請輸入 IART 邀請碼</p>
+    <p>請輸入送子鳥專屬通關密碼</p>
     <input type="password" id="pw-input" placeholder="邀請碼">
     <button class="pw-btn" onclick="checkPassword()">進入</button>
     <p id="pw-error">邀請碼錯誤</p>
@@ -105,8 +105,8 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
     <div class="notice">
       <p><strong>【 訂購須知 】</strong></p>
       <p>1.本頁面僅供「商品預訂登記」，不涉及線上金流支付。</p>
-      <p>2.預訂成功後，請於預約取貨日至1F愛上藝廊櫃檯現場付款領貨，若未於約定日取貨付款，預訂商品將取消保留。</p>
-      <p>3.以送出預約表單的時間順序保留庫存。若預訂品項已完售，將會致電和寄發E-mail通知。</p>
+      <p>2.送出預訂表單後，請於預約取貨日至1F愛上藝廊櫃檯現場付款領貨，若未於約定日取貨付款，預訂商品將取消保留。</p>
+      <p>3.以送出預表單的時間順序保留庫存。若預訂品項已完售，將會致電和寄發E-mail通知。</p>
     </div>
   </header>
 
@@ -119,7 +119,7 @@ select { width:100%; font-size:11px; padding:6px; border:1px solid #ddd; border-
   <div id="t1" class="tab-panel active">
     <div class="wrap">
       <p class="section-title">限定蛋寶聯名組合</p>
-<p style="text-align:center; font-size:12px; color:#991b1b; font-style:normal; font-weight:500; margin-bottom:1.5rem;">購買限定蛋寶聯名組任一組，即贈限量粉藍、粉紅蛋寶吊飾（顏色隨機）</p>
+<p style="text-align:center; font-size:12px; color:#991b1b; font-style:normal; font-weight:500; margin-bottom:1.5rem;">購買限定蛋寶聯名組任一組，即贈限量粉藍、粉紅蛋寶吊飾一個（顏色隨機）</p>
       <div id="grid-tab1a" class="grid-3"></div>
       <div class="divider"></div>
       <p class="section-title" id="t1b-title">IART 限定特惠組</p>
@@ -287,16 +287,26 @@ function toggleCart() {
 }
 
 function addToCart(name, price, ids) {
+  var allSelected = ids.every(id => {
+    var el = document.getElementById(id);
+    return el && el.value !== '';
+  });
+
+  if (!allSelected) {
+    alert('請選擇所有顏色／款式選項後再加入預訂！');
+    return;
+  }
+
   var colors = ids.map(id => {
     var el = document.getElementById(id);
     return el ? el.value : '';
   }).filter(v => v !== '').join(' / ');
+  
   cart.push({ name, price, colors });
   renderCart();
   cartOpen = true;
   document.getElementById('cart-box').style.display = 'block';
 }
-
 function removeFromCart(idx) {
   cart.splice(idx, 1);
   renderCart();
